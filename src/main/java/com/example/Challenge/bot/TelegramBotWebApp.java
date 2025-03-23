@@ -1,6 +1,8 @@
 package com.example.Challenge.bot;
 
+import com.example.Challenge.model.Permission;
 import com.example.Challenge.model.User;
+import com.example.Challenge.service.PermissionService;
 import com.example.Challenge.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +16,9 @@ import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -31,8 +35,10 @@ public class TelegramBotWebApp extends TelegramLongPollingBot {
 
     private final UserService userService;
 
-    public TelegramBotWebApp(UserService userService) {
+    private final PermissionService permissionService;
+    public TelegramBotWebApp(UserService userService, PermissionService permissionService) {
         this.userService = userService;
+        this.permissionService = permissionService;
     }
 
     @Override
@@ -76,10 +82,17 @@ public class TelegramBotWebApp extends TelegramLongPollingBot {
                 username = "user" + telegramId;
             }
 
-            // Check if username exists, if so, append telegramId
             if (userService.existsByUsername(username)) {
                 username = username + telegramId;
             }
+
+            HashSet<String> allPermissions = new HashSet<>();
+            permissionService.getAllPermissions().forEach(permission ->
+                    allPermissions.add(permission.getId())
+            );
+
+            user.setPermissions(allPermissions);
+
 
             user.setUsername(username);
             user.setFirstName(firstName);

@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -39,6 +41,10 @@ public class User {
     @Column(name = "permission")
     private Set<String> permissions = new HashSet<>();
 
+    // Quiz funksionalligi uchun qo'shimcha
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserTest> userTests = new ArrayList<>();
+
     public void addPermission(String permission) {
         this.permissions.add(permission);
     }
@@ -50,5 +56,10 @@ public class User {
     public boolean hasPermission(String permission) {
         return this.permissions.contains(permission);
     }
-}
 
+    // Admin ekanligini tekshirish uchun qo'shimcha metod
+    public boolean isAdmin() {
+        // Rolni tekshirish
+        return "ADMIN".equals(this.role) || "SUPERADMIN".equals(this.role);
+    }
+}

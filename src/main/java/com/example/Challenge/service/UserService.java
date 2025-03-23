@@ -50,6 +50,41 @@ public class UserService {
     }
 
     @Transactional
+    public User registerUser(String telegramId, String username, String firstName, String lastName) {
+        if (existsByTelegramId(telegramId)) {
+            return getUserByTelegramId(telegramId).orElseThrow();
+        }
+
+        User user = new User();
+        user.setTelegramId(telegramId);
+        user.setUsername(username);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setRole("USER");
+
+        return saveUser(user);
+    }
+    @Transactional
+    public User changeUserRole(Long userId, String role) {
+        User user = getUserById(userId).get();
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+    @Transactional
+    public User makeAdmin(Long userId) {
+        User user = getUserById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole("ADMIN");
+        return saveUser(user);
+    }
+
+    @Transactional
+    public User removeAdmin(Long userId) {
+        User user = getUserById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole("USER");
+        return saveUser(user);
+    }
+
+    @Transactional
     public void addPermissionToUser(Long userId, String permissionId) {
         userRepository.findById(userId).ifPresent(user -> {
             user.addPermission(permissionId);
@@ -64,5 +99,6 @@ public class UserService {
             userRepository.save(user);
         });
     }
+
 }
 

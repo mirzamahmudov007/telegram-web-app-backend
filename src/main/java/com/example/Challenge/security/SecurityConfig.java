@@ -47,9 +47,13 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/tasks/user/*").permitAll()
-                        .requestMatchers("/test/hi").permitAll()
                         // All other endpoints require authentication
+                        // Admin endpoints
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")
+
+                        // User endpoints
+                        .requestMatchers("/api/quiz/**").authenticated()
+                        .requestMatchers("/api/tasks/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .headers().frameOptions().disable() // For H2 console
